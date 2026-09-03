@@ -24,16 +24,24 @@ def test_verify_rejects():
 def test_tampering_mismattch():
     password = "HelloWorld12345"
     hashed = hash_password(password)
-    hashed = hashed[:5] + 'c' + hashed[:6]
 
-    assert verify_password(password, hashed) == False
+    prefix, separator, hash_part = hashed.rpartition("$")
+
+    replacement = "c" if hash_part[5] != "c" else "d"
+    tampered_hash = prefix + separator + hash_part[:5] + replacement + hash_part[6:]
+
+    assert tampered_hash != hashed
+    assert verify_password(password, tampered_hash) == False
 
 def test_tampering_invalidhash():
     password = "HelloWorld12345"
     hashed = hash_password(password)
-    hashed = hashed[:9] + 'c' + hashed[:10]
 
-    assert verify_password(password, hashed) == False
+    replacement = "c" if hashed[9] != "c" else "d"
+    tampered_hash = hashed[:9] + replacement + hashed[10:]
+
+    assert tampered_hash != hashed
+    assert verify_password(password, tampered_hash) == False
 
 def test_minpassword():
     password = "Hi"
