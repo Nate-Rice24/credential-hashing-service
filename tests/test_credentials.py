@@ -33,15 +33,11 @@ def test_tampering_mismattch():
     assert tampered_hash != hashed
     assert verify_password(password, tampered_hash) == False
 
-def test_tampering_invalidhash():
+def test_invalid_hash():
     password = "HelloWorld12345"
-    hashed = hash_password(password)
+    invalid_hash = "this-is-not-a-valid-argon2-hash"
 
-    replacement = "c" if hashed[9] != "c" else "d"
-    tampered_hash = hashed[:9] + replacement + hashed[10:]
-
-    assert tampered_hash != hashed
-    assert verify_password(password, tampered_hash) == False
+    assert verify_password(password, invalid_hash) is False
 
 def test_minpassword():
     password = "Hi"

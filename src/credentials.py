@@ -1,5 +1,8 @@
+import logging
 from argon2 import PasswordHasher, Type
 from argon2.exceptions import VerifyMismatchError, InvalidHash
+
+logger = logging.getLogger(__name__)
 
 max_length = 64
 min_length = 15
@@ -32,16 +35,6 @@ def verify_password(guess, stored_hash):
         #log here in production
         logger.error("malformed stored hash encountered")
         return False
-
-password = "ublbaefhvjsbfHLErbggaerd"
-hashed = hash_password(password)
-
-print(hashed)
-print(verify_password(password, hashed))
-
-
-password2 = "Hi"
-hashed2 = hash_password(password2)
 
 # The Argon2 parameters — m=65536 means 64 MiB per hash, which caps a 24GB GPU at roughly 375 concurrent attempts instead of billions.
 # The length policy — 15 minimum, 64 maximum, citing NIST SP 800-63B Rev 4, and why no complexity rules.
