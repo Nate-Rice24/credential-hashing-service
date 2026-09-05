@@ -1,65 +1,73 @@
-![tests](https://github.com/Nate-Rice24/notes-app/actions/workflows/tests.yml/badge.svg)
+![tests](https://github.com/Nate-Rice24/credential-hashing-service/actions/workflows/tests.yml/badge.svg)
 # credential-hashing-service
 
 ## Problem
-  A database breach can expose password hashes, allowing an attacker to perform unlimited offline guesses. This project uses Argon2id, making the hashing operation memory-hard and the offline guessing computationally and memory-wise expensive.
+  A database breach can expose password hashes, allowing an attacker to perform unlimited offline guesses. This project uses Argon2id to make the hashing operation memory-hard, increasing the computational and memory cost of offline guessing.
   
 ## Design
 
 ### Password Hashing
-  For password hashing, the system takes a plain-text password and hashes it using Argon2id. Then the output is a hashed password containing a salt that is used to solve the problem of rainbow tables, since two identical passwords will have different hashes. Then this hash will be stored in a database.
+  The resulting Argon2id encoded hash includes a unique random salt. Because identical passwords receive different salts, they produce different stored hashes, making precomputed rainbow tables impractical.
 ### Password Verification
-  Password verification takes in the input password and the hashed password from the database and then uses Argon2id's built-in verify function to verify that the hashes match. The library uses the information encoded in the stored Argon2id hash to perform verification.
+  Password verification takes in the input password and the hashed password from the database and then uses Argon2id's built-in verify function, which uses the information encoded in the stored Argon2id hash to perform verification.
 ### Password Policy
-  For the password policy, I was informed by NIST guidance and decided to set the minimum password length to 15 characters and the maximum password length to 64 characters. I also didn't require any special characters as to not give information to give attackers of what characters might be in a user's password.
+  For the password policy, I based this policy on NIST guidance and decided to set the minimum password length to 15 characters and the maximum password length to 64 characters. I also didn't require any special characters, as arbitrary complexity requirements don't necessarily make passwords stronger and can make them harder for the user to remember.
 ### Error Handling
-  For error handling, I implemented value errors in case the input password isn't between the required byte lengths. Then, for verifying the password, I handled mismatch errors and invalid hashes on the back end, so that if there is an attacker, the errors don't give them any information about why the system errored.
+  For error handling, the system raises ValueError when the input password isn't within the required character length. Then, for verifying the password, I handled mismatch errors and invalid hashes on the back end, so that internal error details aren't unnecessarily exposed to callers.
+  
 ## Tradeoffs
 
 ### Security vs. Performance
-In order to implement security against certain attacks, the system's performance did suffer. One example of this is the cost parameters that I have included to slow down and limit offline guessing. These parameters would slow down the login process for the user, but I tried to find a happy medium between secure and still fast enough for the system to feel responsive.
-### Argon2id vs. Other Algorithms
-By choosing Argon2id, I did open up the possibility to fine-tune the system's cost parameters, but I gave up the speed and efficiency of other hashing services. 
+In order to implement security against certain attacks, these security improvements come with a performance cost. One example of this is the cost parameters that I have included to slow down and limit offline guessing. These parameters would slow down the login process for the user. So I chose parameters that provide meaningful resistance to offline guessing while keeping legitimate password verification responsive.
+### Argon2id vs. bcrypt
+bcrypt is a well-established password-hashing algorithm with a configurable computational cost. However, it does not provide the same configurable memory cost as Argon2id and also has a practical 72-byte password input limitation. I chose Argon2id because its configurable memory and computational costs provide more flexibility when tuning the system against offline password guessing.
+### Argon2id vs. scrypt
+scrypt is also a strong memory-hard password-hashing algorithm and was a viable alternative for this project. I chose Argon2id because it provides configurable memory, time, and parallelism parameters, while the Argon2id variant is designed to provide memory-hardness alongside resistance to certain side-channel attacks. This gave me the flexibility I wanted when tuning the cost of password verification.
+### Argon2id vs. PBKDF2
+PBKDF2 is a widely supported password-based key derivation function that primarily increases security by increasing the number of iterations required for each password guess. Unlike Argon2id, it does not provide the same configurable memory cost. I chose Argon2id because making each password guess memory-intensive makes large-scale parallel offline guessing more expensive.
 ### Password Length
-While I did set the password length requirements at what I feel is pretty conservative, the major trade-off here is that the shorter the password, the easier it is to guess, and hashing can't make up for a bad password. So I tried to make the minimum password length long enough to be secure but not annoying for the user to remember or try to come up with.
+The major trade-off here is that the shorter the password, the easier it is to guess, and hashing can't make up for a bad password. So I tried to make the minimum password length long enough to be secure without unnecessarily burdening users.
 ### Pepper
-Argon2id gave me the option to add peppers, which seem great for security, but add an extra layer, as the person/company using this service must find a separate safe space, besides the database where the hashes are stored, to store this global secret. This doesn't, however, protect against the attacker controlling the environment running the application.
+Adding a pepper provides another layer of protection, but introduces secret-management requirements because the pepper must be stored separately from the database. This doesn't, however, protect against the attacker controlling the environment running the application.
 
 ## How To Run
 
 ### Clone the repository
 
-``bash
+```bash
 git clone <repository-url>
 cd credential-hashing-service
 python -m venv .venv
-Activate for Windows
+
+#Activate for Windows
 .venv\Scripts\activate
-Activate for Mac/Linux
+
+#Activate for Mac/Linux
 source .venv/bin/activate
+
 pip install -r requirements.txt
 python -m pytest
+```
 
-Obviously, **use the commands that actually match your repository**. Don't add commands for things you haven't implemented.
 
----
+## Tests
 
-## 5. Tests
-- successful password verification
-- incorrect password
-- invalid/malformed hash
-- password length requirements
-- hash uniqueness due to salts
-- tampered hashes
-- `None`/invalid stored values, if that's tested
+The project includes tests covering:
 
-And mention CI if your GitHub Actions workflow is working:
-
-``markdown
-Tests are also executed automatically through GitHub Actions CI.
+- Successful password verification
+- Incorrect passwords
+- Invalid/malformed hashes
+- Password length requirements
+- Hash uniqueness due to unique salts
+- Tampered hashes
+- Invalid stored values
 
 ## What's Next
 I would like to add:
-- Hash migration: As hardware improves, Argon2id parameters may need to increase. A future version could detect outdated parameters during authentication and transparently rehash the password using the newer configuration.
-- Containerize the Service: Package the application and its dependencies into a reproducible container to simplify deployment, improve environment consistency, and make the service easier to run in CI and production.
-- Add a pepper backed by environment variables or a secret manager: Additional protection against database-only compromise
+- **Hash migration:** As hardware improves, Argon2id parameters may need to increase. A future version could detect outdated parameters during authentication and transparently rehash the password using the newer configuration.
+- **Containerize the Service:** Package the application and its dependencies into a reproducible container to simplify deployment, improve environment consistency, and make the service easier to run in CI and production.
+- **Managed pepper:** Store a secret pepper outside the database using environment-based secret injection or a dedicated secret manager. This would provide additional protection against database-only compromise while introducing additional secret-management requirements.
+
+## Security
+
+For a detailed analysis of the attacker model, security assumptions, defenses, and out-of-scope threats, see [THREAT_MODEL.md](THREAT_MODEL.md).
