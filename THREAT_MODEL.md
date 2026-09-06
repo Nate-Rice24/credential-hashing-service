@@ -41,7 +41,6 @@ I chose Argon2id over PBKDF2 because PBKDF2's primary cost parameter is increasi
 | Time (`t`)        |         3 | Controls the number of passes     |
 | Parallelism (`p`) |         4 | Controls parallelism              |
 As a simplified memory-only illustration, 24 GB / 64 MiB is approximately 375 concurrent 64 MiB allocations. Actual password-cracking performance depends on the GPU architecture, implementation, parallelism, memory overhead, and other Argon2id parameters.
-# In this system, I imposed
 
 ### Password Policy
 In this system, I imposed a 15-character minimum and 64-character maximum as part of its password policy. The length policy — 15 minimum, 64 maximum- follows NIST SP 800-63B Rev 4 guidelines, and there are no complexity rules.
@@ -72,7 +71,7 @@ This threat model assumes that the attacker has access to the stored password ha
 
 ## References
 
-- [NIST SP 800-63B: Digital Identity Guidelines — Authentication and Lifecycle Management, Revision 4](https://pages.nist.gov/800-63-3/sp800-63b.html)
+- [NIST SP 800-63B: Digital Identity Guidelines — Authentication and Lifecycle Management, Revision 4](https://pages.nist.gov/800-63-4/sp800-63b.html)
 
 ## Summary
 
