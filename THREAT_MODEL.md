@@ -47,7 +47,6 @@ As a simplified memory-only illustration, 24 GB / 64 MiB is approximately 375 co
 In this system, I imposed a 15-character minimum and 64-character maximum as part of its password policy. The length policy — 15 minimum, 64 maximum- follows NIST SP 800-63B Rev 4 guidelines, and there are no complexity rules.
 ### Error Handling
 Corrupt stored hashes — uniform False to the caller, full detail in the logs. This prevents the API from giving away unnecessary internal details while allowing operators to investigate the problem.
-None in the hash column — fail fast, because it's a violated invariant rather than a user error. This is important because it fails fast and loud, allowing for the problem to be fixed right away instead of going under the radar for a while.
 
 ## Salt VS Pepper
 A salt is public and stored with the hash; a pepper is secret and stored separately. A pepper would add a layer of security in case a hacker got access to the hashes, because it is a global secret that is added to every password. The pepper would be stored separately from the database in a secure place, so that even if the attacker got the hash from the database, they would still be missing the pepper.
