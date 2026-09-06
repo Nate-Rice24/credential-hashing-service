@@ -23,16 +23,16 @@ For rainbow tables, the program uses a unique random salt for each password. Thi
 ### Offline guessing
 For offline guessing, the program has many different cost parameters that harden the memory and increase the computational and memory cost of each password. This won't prevent offline guessing, but it can increase the resources required to perform large numbers of guesses.
 ## Why Argon2id
-I chose Argon2 because it provides configurable time, memory, and parallelism costs, allowing the password-hashing workload to be tuned to make offline attacks more expensive.
+I chose Argon2id because it provides configurable time, memory, and parallelism costs, allowing the password-hashing workload to be tuned to make offline attacks more expensive.
 
 ### Argon2id vs. bcrypt?
-I chose Argon2id over bcrypt because bcrypt lacks explicit memory-hardening parameters you can tune, and it has a built-in maximum password length of 72 bytes. Not only does Argon2id have cost parameters you can tune, but it also doesn't have a required maximum password length. Overall, I chose Argon2id over bcrypt because of its flexibility to change and  tune the hashing to how I see fit. 
+I chose Argon2id over bcrypt because bcrypt lacks explicit memory-hardening parameters you can tune, and it has a built-in maximum password length of 72 bytes. Not only does Argon2id have cost parameters you can tune, but it also doesn't have a required maximum password length. Overall, I chose Argon2id over bcrypt because of its flexibility to change and tune the hashing to how I see fit. 
   
 ### Argon2id vs. scrypt?
 I chose Argon2id over scrypt because, while scrypt does have memory-hardening features and is a strong password-hashing algorithm. Argon2id has more design/configurability options for memory hardening and side-channel resistance. For this project, Argon2id provides the combination of properties I wanted.
   
 ### Argon2id vs. PBKDF2?
-I chose Argon2id over PBKDF2 because PBKDF2's primary cost parameter is increasing the number of iterations and does not provide the same configurable memory-cost parameter as Argon2id
+I chose Argon2id over PBKDF2 because PBKDF2's primary cost parameter is increasing the number of iterations and does not provide the same configurable memory-cost parameter as Argon2id.
 
 ### The Argon2id parameters
 | Parameter         |     Value | Purpose                           |
@@ -72,7 +72,7 @@ This threat model assumes that the attacker has access to the stored password ha
 
 ## References
 
-- [NIST SP 800-63B: Digital Identity Guidelines — Authentication and Lifecycle Management, Revision 4](...)
+- [NIST SP 800-63B: Digital Identity Guidelines — Authentication and Lifecycle Management, Revision 4](https://pages.nist.gov/800-63-3/sp800-63b.html)
 
 ## Summary
 
