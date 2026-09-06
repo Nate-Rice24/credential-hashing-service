@@ -29,7 +29,7 @@ Adding a pepper provides another layer of protection, but introduces secret-mana
 ### Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Nate-Rice24/credential-hashing-service
 cd credential-hashing-service
 python -m venv .venv
 
@@ -54,7 +54,6 @@ The project includes tests covering:
 - Password length requirements
 - Hash uniqueness due to unique salts
 - Tampered hashes
-- Invalid stored values
 
 ## What's Next
 I would like to add:
