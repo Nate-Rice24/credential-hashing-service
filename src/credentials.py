@@ -16,14 +16,13 @@ _hasher = PasswordHasher(
 )
 
 def hash_password(password) -> str:
-
     if len(password) > MAX_LENGTH:
         raise ValueError("Password exceeds 64 characters")
     elif len(password) < MIN_LENGTH:
         raise ValueError("Password is below the minimum length of 15 characters")
 
-    stored_hash = _hasher.hash(password)
-    return stored_hash
+    return _hasher.hash(password)
+
 
 def verify_password(guess, stored_hash):
     try:
@@ -32,6 +31,5 @@ def verify_password(guess, stored_hash):
     except VerifyMismatchError:
         return False
     except InvalidHash:
-        #log here in production
-        logger.error("malformed stored hash encountered")
+        logger.exception("Stored credential is not a valid Argon2 encoded hash")
         return False

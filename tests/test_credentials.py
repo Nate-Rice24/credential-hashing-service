@@ -1,5 +1,5 @@
 from src.credentials import hash_password, verify_password
-import pytest
+import pytest, logging
 
 def test_salts():
     password = "HelloWorld12345"
@@ -53,3 +53,24 @@ def test_maxpassword():
     password = "hefgakefbfaefageavefjgaeakvgesksvfhvwskjvfkjwavfjkwvfagfkavjhvwal"
     with pytest.raises(ValueError, match="Password exceeds 64 characters"):
         hash_password(password)
+
+def test_malformed_hash_logs_cause_without_leaking_password(caplog):
+    password = "HelloWorld12345"
+    invalid_hash = "this-is-not-a-valid-argon2-hash"
+
+    with caplog.at_level(logging.ERROR, logger="src.credentials"):
+        assert verify_password(password, invalid_hash) is False
+
+    errors = [r for r in caplog.records if r.levelno == logging.ERROR]
+    assert len(errors) == 1
+    assert errors[0].exc_info is not None
+    assert password not in caplog.text
+
+def test_wrong_password_does_not_log(caplog):
+    password = "HelloWorld12345"
+    hashed = hash_password(password)
+
+    with caplog.at_level(logging.ERROR, loggger="src.credentials"):
+        assert verify_password("HelloWorld12346", hashed) is False
+
+    assert caplog.records == []
