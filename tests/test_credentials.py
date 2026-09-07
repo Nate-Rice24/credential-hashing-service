@@ -70,7 +70,7 @@ def test_wrong_password_does_not_log(caplog):
     password = "HelloWorld12345"
     hashed = hash_password(password)
 
-    with caplog.at_level(logging.ERROR, loggger="src.credentials"):
+    with caplog.at_level(logging.ERROR, logger="src.credentials"):
         assert verify_password("HelloWorld12346", hashed) is False
 
     assert caplog.records == []
