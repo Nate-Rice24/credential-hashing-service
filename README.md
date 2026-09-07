@@ -54,6 +54,7 @@ The project includes tests covering:
 - Password length requirements
 - Hash uniqueness due to unique salts
 - Tampered hashes
+- Malformed-hash logging: cause captured, password never written to logs
 
 ## What's Next
 I would like to add:
